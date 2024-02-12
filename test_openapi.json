@@ -1,0 +1,263 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "Simple Restful API",
+        "description": "This is a simple restful api implementation using go",
+        "version": "1.0",
+        "contact": {
+            "name": "Fauzan Abdillah",
+            "email": "fauzanebd@gmail.com"
+        },
+        "license": {
+            "name": "MIT",
+            "url": "https://opensource.org/licenses/MIT"
+        }
+    },
+    "servers": [
+        {
+            "url": "https://{environment}.fauzanebd.com/v1",
+            "description": "Fauzan API Server",
+            "variables": {
+                "environment": {
+                    "default": "dev",
+                    "description": "Server Environment",
+                    "enum": [
+                        "dev",
+                        "qa",
+                        "prod"
+                    ]
+                }
+            }
+        }
+    ],
+    "paths": {
+        "/todolist": {
+            "get": {
+                "tags": [
+                    "todolist"
+                ],
+                "summary": "Get All Todo List",
+                "description": "Only return active todolist, completed or deleted todolist will not be returned",
+                "parameters": [
+                    {
+                        "name": "Include Completed",
+                        "in": "query",
+                        "required": false,
+                        "description": "Include completed todolist in response",
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        },
+                        "examples": {
+                            "includeCompleted": {
+                                "value": true,
+                                "summary": "Include Completed Todolist"
+                            },
+                            "excludeCompleted": {
+                                "value": false,
+                                "summary": "Exclude Completed Todolist"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Get All Todo List Success",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "description": "todo list id",
+                                                "nullable": false
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": [
+                    "todolist"
+                ],
+                "summary": "Create New TodoList",
+                "description": "Create new active todo list",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "$ref": "#/components/schemas/ToDoList"
+                            },
+                            "examples": {
+                                "example1": {
+                                    "value": {
+                                        "todoTitle": "Learn Golang",
+                                        "todoDesc": "Learn Golang from youtube",
+                                        "todoPoint": {
+                                            "pointName": "Learn Golang",
+                                            "pointDesc": "Learn Golang from youtube"
+                                        },
+                                        "tags": [
+                                            "golang",
+                                            "youtube"
+                                        ]
+                                    },
+                                    "summary": "Example 1"
+                                },
+                                "example2": {
+                                    "value": {
+                                        "todoTitle": "Learn Golang B",
+                                        "todoDesc": "Learn Golang from youtube",
+                                        "todoPoint": {
+                                            "pointName": "Learn Golang",
+                                            "pointDesc": "Learn Golang from youtube"
+                                        },
+                                        "tags": [
+                                            "golang",
+                                            "youtube"
+                                        ]
+                                    },
+                                    "summary": "Example 2"
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {}
+            }
+        },
+        "/todolist/{todolistId}": {
+            "put": {
+                "security": [
+                    {
+                        "TodoListAuth": []
+                    }
+                ],
+                "summary": "Update TodoList",
+                "description": "Update active todolist",
+                "parameters": [
+                    {
+                        "name": "todolistId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Todolist Id for update",
+                        "schema": {
+                            "type": "string",
+                            "nullable": false,
+                            "maxLength": 100
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {}
+                        }
+                    }
+                },
+                "responses": {}
+            },
+            "delete": {
+                "summary": "Delete TodoList",
+                "description": "Delete active todolist",
+                "responses": {},
+                "parameters": [
+                    {
+                        "name": "todolistId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Todolist Id for delete",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ]
+            },
+            "get": {
+                "summary": "Get TodoList By Id",
+                "description": "Get active todolist",
+                "parameters": [
+                    {
+                        "name": "todolistId",
+                        "in": "path",
+                        "required": true,
+                        "description": "Todolist Id to be returned",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {}
+            }
+        }
+    },
+    "externalDocs": {
+        "description": "Youtube Eko",
+        "url": "https://www.youtube.com/channel/UCYg5cUqz9x9_2vK-_1nhEOA"
+    },
+    "components": {
+        "securitySchemes": {
+            "TodoListAuth": {
+                "type":"apiKey",
+                "in": "header",
+                "name":"X-API-Key",
+                "description": "Authorization for TodoList API"
+            }
+        },
+        "schemas": {
+            "ToDoList": {
+                "type": "object",
+                "properties": {
+                    "todoTitle": {
+                        "type": "string",
+                        "maxLength": 100,
+                        "nullable": false,
+                        "example": "Learn Golang"
+                    },
+                    "todoDesc": {
+                        "type": "string",
+                        "maxLength": 1000,
+                        "nullable": true
+                    },
+                    "todoPoint": {
+                        "type": "object",
+                        "properties": {
+                            "pointName": {
+                                "type": "string",
+                                "maxLength": 100,
+                                "nullable": false
+                            },
+                            "pointDesc": {
+                                "type": "string",
+                                "maxLength": 1000,
+                                "nullable": true
+                            }
+                        },
+                        "maxLength": 1000,
+                        "nullable": true
+                    },
+                    "tags": {
+                        "type": "array",
+                        "required": false,
+                        "minItems": 1,
+                        "items": {
+                            "type": "string",
+                            "maxLength": 100,
+                            "nullable": false
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
